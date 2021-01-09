@@ -9,9 +9,12 @@ public class DragAndDrop : MonoBehaviour
     public string tagParent;
     public bool isOnParent;
     public Vector3 originalPosition;
+    public GameObject collider2D;
+    private bool isHome;
 
     public void Start(){
         originalPosition = gameObject.transform.position;
+        isHome = true;
     }
 
     public void OnMouseDown()
@@ -24,6 +27,17 @@ public class DragAndDrop : MonoBehaviour
         isDragging = false;
         if (!isOnParent){
             gameObject.transform.position = originalPosition;
+        }else{
+            originalPosition = gameObject.transform.position;
+            gameObject.transform.parent = collider2D.transform;
+            if (isHome){
+                isHome = false;
+                if (tagParent == "mainboard"){
+                    MainOperasi.Instance.SpawnObjectPiring();
+                }else{
+                    MainOperasi.Instance.SpawnObjectApple();
+                }
+            }
         }
     }
 
@@ -37,12 +51,17 @@ public class DragAndDrop : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D col)
     {   
-        isOnParent = col.gameObject.tag == tagParent;  
+        if (col.gameObject.tag == tagParent){
+            isOnParent = true;
+            collider2D = col.gameObject;
+        }
+        
     }
 
     void OnTriggerExit2D(Collider2D col)
     {   
-        if (col.gameObject.tag == tagParent)
+        if (col.gameObject.tag == tagParent){
             isOnParent = false;
+        }
     }
 }
