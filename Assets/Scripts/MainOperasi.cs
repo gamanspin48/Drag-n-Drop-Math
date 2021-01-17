@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class MainOperasi : MonoBehaviour
@@ -14,9 +15,12 @@ public class MainOperasi : MonoBehaviour
     public Soal soal;
     public int currentJmlPiring;
     public int currentJmlApple;
+    public int index;
 
     public Text answerText;
     public Text descText;
+    public Text soalText;
+    public Button btnNext;
 
     public static MainOperasi Instance { get; private set; } // static singleton
     void Awake() {
@@ -25,6 +29,30 @@ public class MainOperasi : MonoBehaviour
          else { Destroy(gameObject); }
          // Cache references to all desired variables
         //  player= FindObjectOfType<Player>();
+        index = 0;
+    }
+
+    void Start(){
+        InitSoal();
+    }
+
+    public void InitSoal(){
+        soal = DataManager.Instance.soalChoosen[index];
+        currentJmlApple = 0;
+        currentJmlPiring = 0;
+        RemoveAllChildren();
+        soalText.text = soal.textSoal;
+        answerText.text = "";
+        descText.text = "";
+        btnNext.gameObject.SetActive(false);
+    }
+
+    public void NextSoal(){
+        if (index < DataManager.Instance.soalChoosen.Length){
+            InitSoal();
+        }else{
+            SceneManager.LoadScene(sceneName:"MainMenu");
+        }
     }
 
     public void SpawnObjectApple(){
@@ -72,13 +100,15 @@ public class MainOperasi : MonoBehaviour
         if ((bool)data[0]){
             int jmlPiring = (int)data[1];
             int jmlApple = (int)data[2];
-            int index = soal.IsCorrect(jmlPiring,jmlApple);
-            if ( index != -1){
+            int indexSoal = soal.IsCorrect(jmlPiring,jmlApple);
+            if ( indexSoal != -1){
                 answerText.text = soal.textJawaban;
-                descText.text = soal.validasi[index].textDescription;
+                descText.text = soal.validasi[indexSoal].textDescription;
+                btnNext.gameObject.SetActive(true);
+                index++;
             }else{
                 RemoveAllChildren();
-               
+                
             }
         }
     }
